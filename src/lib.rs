@@ -47,6 +47,9 @@ pub type in_port_t = u16;
 
 pub type mode_t = c_uint;
 pub type off_t = i64;
+
+pub type pthread_t = u64;
+
 #[repr(C)]
 pub struct sem_t { // Unverified
     __size: [c_char; 16],
@@ -129,12 +132,28 @@ pub union pthread_mutexattr_t {
     _bindgen_union_align: u32,
 }
 
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct pthread_attr_t {
+    __size: [c_char; 0x38] // RE'd from nnSdk+0x4cf7f8 in smash 6.1.0
+}
+
+#[repr(C)]
+pub struct timespec {
+    pub tv_sec: time_t,
+    pub tv_nsec: c_long,
+}
+
 pub const PTHREAD_MUTEX_INITIALIZER: pthread_mutex_t = pthread_mutex_t {
     __size: [0; 40]
 };
 
 pub const PTHREAD_MUTEX_NORMAL: c_int = 0;
 pub const PTHREAD_MUTEX_RECURSIVE: c_int = 1;
+
+// please be bsd/unix-like enough for this...
+pub const EINTR: c_int = 4;
+pub const EINVAL: c_int = 22;
 
 extern "C" {
     #[link_name = "__pthread_key_create"]
@@ -180,6 +199,38 @@ extern "C" {
     pub fn pthread_mutex_init(
         lock: *mut pthread_mutex_t, 
         attr: *const pthread_mutexattr_t
+    ) -> c_int;
+
+    pub fn pthread_self() -> pthread_t;
+
+    #[link_name = "__pthread_join"]
+    pub fn pthread_join(
+        native: pthread_t,
+        value: *mut *mut c_void,
+    ) -> c_int;
+
+    pub fn pthread_detach(thread: pthread_t) -> c_int;
+
+    pub fn pthread_attr_setstacksize(
+        attr: *mut pthread_attr_t,
+        stack_size: size_t,
+    ) -> c_int;
+
+    pub fn pthread_attr_init(attr: *mut pthread_attr_t) -> c_int;
+
+    pub fn pthread_create(
+        native: *mut pthread_t,
+        attr: *const pthread_attr_t,
+        f: extern "C" fn(*mut c_void) -> *mut c_void,
+        value: *mut c_void,
+    ) -> c_int;
+
+    pub fn pthread_attr_destroy(attr: *mut pthread_attr_t) -> c_int;
+
+    pub fn pthread_setname_np(
+        t: pthread_t,
+        name: *const c_schar,
+        arg: *const c_void,
     ) -> c_int;
 }
 
@@ -399,6 +450,8 @@ extern "C" {
     ) -> ssize_t;
 
     pub fn fdopendir(fd: c_int) -> *mut DIR;
+
+    pub fn nanosleep(a: *const timespec, b: *mut timespec) -> c_int;
 }
 
 #[cfg(not(feature = "rustc-dep-of-std"))]
