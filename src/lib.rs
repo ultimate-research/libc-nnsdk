@@ -43,6 +43,7 @@ pub type pid_t = i32;
 pub type uid_t = u32;
 pub type gid_t = u32;
 pub type in_addr_t = u32;
+pub type in6_addr_t = [u8; 0x10];
 pub type in_port_t = u16;
 
 pub type mode_t = c_uint;
@@ -231,6 +232,266 @@ extern "C" {
         t: pthread_t,
         name: *const c_schar,
         arg: *const c_void,
+    ) -> c_int;
+}
+
+pub type socklen_t = c_uint;
+pub type sa_family_t = c_ushort;
+pub type __time_t = c_long;
+pub type __suseconds_t = c_long;
+pub type suseconds_t = c_long;
+pub type nfds_t = c_uint;
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct in_addr {
+    pub s_addr: in_addr_t,
+}
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct in6_addr {
+    pub s6_addr: in6_addr_t,
+}
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct sockaddr_in {
+    pub sin_family: sa_family_t,
+    pub sin_port: in_port_t,
+    pub sin_addr: in_addr,
+}
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct sockaddr_in6 {
+    pub sin6_family: sa_family_t,
+    pub sin6_port: in_port_t,
+    pub sin6_flowinfo: u32,
+    pub sin6_addr: in6_addr,
+    pub sin6_scope_id: u32,
+}
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct sockaddr {
+    pub sa_family: sa_family_t,
+    pub sa_data: [c_char; 14usize],
+}
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct iovec {
+    pub iov_base: *mut c_void,
+    pub iov_len: size_t,
+}
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct msghdr {
+    pub msg_name: *mut c_void,
+    pub msg_namelen: socklen_t,
+    pub msg_iov: *mut iovec,
+    pub msg_iovlen: size_t,
+    pub msg_control: *mut c_void,
+    pub msg_controllen: size_t,
+    pub msg_flags: c_int,
+}
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct mmsghdr {
+    pub msg_hdr: msghdr,
+    pub msg_len: c_uint,
+}
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct timeval {
+    pub tv_sec: __time_t,
+    pub tv_usec: __suseconds_t,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct sockaddr_storage {
+    pub ss_family: sa_family_t,
+    pub __ss_padding: [c_char; 118usize],
+    pub __ss_align: c_ulong,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct pollfd {
+    pub fd: c_int,
+    pub events: c_short,
+    pub revents: c_short,
+}
+
+extern "C" {
+    #[link_name = "nnsocketIoctl"]
+    pub fn ioctl(fd: c_int, request: c_uint, ...) -> c_int;
+}
+
+pub const SHUT_RD: c_int = 0;
+pub const SHUT_WR: c_int = 1;
+pub const SHUT_RDWR: c_int = 2;
+
+pub const TCP_NODELAY: c_int = 1;
+pub const TCP_MAXSEG: c_int = 2;
+
+pub const IPPROTO_ICMP: c_int = 1;
+pub const IPPROTO_ICMPV6: c_int = 58;
+pub const IPPROTO_TCP: c_int = 6;
+pub const IPPROTO_UDP: c_int = 17;
+pub const IPPROTO_IP: c_int = 0;
+pub const IPPROTO_IPV6: c_int = 41;
+
+pub const SO_ERROR: c_int = 0x1007;
+pub const SOL_SOCKET: c_int = 0xffff;
+pub const FIONBIO: c_uint = 0x8004667e;
+pub const EINPROGRESS: c_int = 36;
+
+pub const AF_INET: c_int = 2;
+pub const AF_INET6: c_int = 24;
+
+pub const POLLIN: c_short = 0x1;
+pub const POLLPRI: c_short = 0x2;
+pub const POLLOUT: c_short = 0x4;
+pub const POLLERR: c_short = 0x8;
+pub const POLLHUP: c_short = 0x10;
+pub const POLLNVAL: c_short = 0x20;
+pub const POLLRDNORM: c_short = 0x040;
+pub const POLLWRNORM: c_short = 0x004;
+pub const POLLRDBAND: c_short = 0x080;
+pub const POLLWRBAND: c_short = 0x100;
+
+pub const MSG_PEEK: c_int = 0x2;
+pub const EAI_SYSTEM: c_int = 11;
+
+// sockets
+extern "C" {
+    pub fn socket(
+        __domain: c_int,
+        __type: c_int,
+        __protocol: c_int,
+    ) -> c_int;
+    pub fn socketpair(
+        __domain: c_int,
+        __type: c_int,
+        __protocol: c_int,
+        __fds: *mut c_int,
+    ) -> c_int;
+    pub fn bind(
+        __fd: c_int,
+        __addr: *const sockaddr,
+        __len: socklen_t,
+    ) -> c_int;
+    pub fn getsockname(
+        __fd: c_int,
+        __addr: *mut sockaddr,
+        __len: *mut socklen_t,
+    ) -> c_int;
+    pub fn connect(
+        __fd: c_int,
+        __addr: *const sockaddr,
+        __len: socklen_t,
+    ) -> c_int;
+    pub fn getpeername(
+        __fd: c_int,
+        __addr: *mut sockaddr,
+        __len: *mut socklen_t,
+    ) -> c_int;
+    pub fn send(
+        __fd: c_int,
+        __buf: *const c_void,
+        __n: size_t,
+        __flags: c_int,
+    ) -> ssize_t;
+    pub fn recv(
+        __fd: c_int,
+        __buf: *mut c_void,
+        __n: size_t,
+        __flags: c_int,
+    ) -> ssize_t;
+    pub fn sendto(
+        __fd: c_int,
+        __buf: *const c_void,
+        __n: size_t,
+        __flags: c_int,
+        __addr: *const sockaddr,
+        __addr_len: socklen_t,
+    ) -> ssize_t;
+    pub fn recvfrom(
+        __fd: c_int,
+        __buf: *mut c_void,
+        __n: size_t,
+        __flags: c_int,
+        __addr: *mut sockaddr,
+        __addr_len: *mut socklen_t,
+    ) -> ssize_t;
+    pub fn sendmsg(
+        __fd: c_int,
+        __message: *const msghdr,
+        __flags: c_int,
+    ) -> ssize_t;
+    pub fn sendmmsg(
+        __fd: c_int,
+        __vmessages: *mut mmsghdr,
+        __vlen: c_uint,
+        __flags: c_int,
+    ) -> c_int;
+    pub fn recvmsg(
+        __fd: c_int,
+        __message: *mut msghdr,
+        __flags: c_int,
+    ) -> ssize_t;
+    pub fn recvmmsg(
+        __fd: c_int,
+        __vmessages: *mut mmsghdr,
+        __vlen: c_uint,
+        __flags: c_int,
+        __tmo: *mut timespec,
+    ) -> c_int;
+    pub fn getsockopt(
+        __fd: c_int,
+        __level: c_int,
+        __optname: c_int,
+        __optval: *mut c_void,
+        __optlen: *mut socklen_t,
+    ) -> c_int;
+    pub fn setsockopt(
+        __fd: c_int,
+        __level: c_int,
+        __optname: c_int,
+        __optval: *const c_void,
+        __optlen: socklen_t,
+    ) -> c_int;
+    pub fn listen(__fd: c_int, __n: c_int) -> c_int;
+    pub fn accept(
+        __fd: c_int,
+        __addr: *mut sockaddr,
+        __addr_len: *mut socklen_t,
+    ) -> c_int;
+    pub fn accept4(
+        __fd: c_int,
+        __addr: *mut sockaddr,
+        __addr_len: *mut socklen_t,
+        __flags: c_int,
+    ) -> c_int;
+    pub fn shutdown(
+        __fd: c_int,
+        __how: c_int,
+    ) -> c_int;
+    pub fn sockatmark(__fd: c_int) -> c_int;
+    pub fn isfdtype(
+        __fd: c_int,
+        __fdtype: c_int,
+    ) -> c_int;
+    pub fn poll(
+        fds: *mut pollfd,
+        nfds: nfds_t,
+        timeout: c_int
     ) -> c_int;
 }
 
