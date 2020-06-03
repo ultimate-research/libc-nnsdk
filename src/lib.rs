@@ -237,7 +237,7 @@ extern "C" {
 
 pub type socklen_t = c_uint;
 pub type sa_family_t = c_ushort;
-pub type __time_t = c_long;
+pub type __time_t = time_t;
 pub type __suseconds_t = c_long;
 pub type suseconds_t = c_long;
 pub type nfds_t = c_uint;
@@ -282,7 +282,7 @@ pub struct sockaddr {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct iovec {
-    pub iov_base: *mut c_void,
+    pub iov_base: *const c_void,
     pub iov_len: size_t,
 }
 
@@ -328,9 +328,31 @@ pub struct pollfd {
     pub revents: c_short,
 }
 
-extern "C" {
-    #[link_name = "nnsocketIoctl"]
-    pub fn ioctl(fd: c_int, request: c_uint, ...) -> c_int;
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct addrinfo {
+    pub ai_flags: c_int, /* AI_PASSIVE, AI_CANONNAME, AI_NUMERICHOST */
+    pub ai_family: c_int,/* AF_xxx */
+    pub ai_socktype: c_int, /* SOCK_xxx */
+    pub ai_protocol: c_int, /* 0 or IPPROTO_xxx for IPv4 and IPv6 */
+    pub ai_addrlen: socklen_t, /* length of ai_addr */
+    pub ai_canonname: *const c_char,	/* canonical name for hostname */
+    pub ai_addr: *const sockaddr,	/* binary address */
+    pub ai_next: *mut addrinfo,	/* next node in linked list */
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct ip_mreq {
+    pub imr_multiaddr: in_addr,
+    pub imr_interface: in_addr,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct ipv6_mreq {
+    pub ipv6mr_multiaddr: in6_addr,
+    pub ipv6mr_interface: c_uint,
 }
 
 pub const SHUT_RD: c_int = 0;
@@ -369,51 +391,136 @@ pub const POLLWRBAND: c_short = 0x100;
 pub const MSG_PEEK: c_int = 0x2;
 pub const EAI_SYSTEM: c_int = 11;
 
+// from libnx
+pub const IPV6_ADD_MEMBERSHIP: c_int = 12;
+pub const IP_ADD_MEMBERSHIP: c_int = 12;
+pub const IP_DROP_MEMBERSHIP: c_int = 13;
+pub const IPV6_DROP_MEMBERSHIP: c_int = 13;
+pub const SOCK_STREAM: c_int = 1;
+pub const SOCK_DGRAM: c_int = 2;
+pub const SO_SNDTIMEO: c_int = 0x1005;
+pub const SO_RCVTIMEO: c_int = 0x1006;
+pub const SO_BROADCAST: c_int = 0x20;
+pub const IP_TTL: c_int = 4;
+pub const SO_REUSEADDR: c_int = 4;
+pub const IPV6_V6ONLY: c_int = 27;
+pub const IP_MULTICAST_TTL: c_int = 10;
+pub const IP_MULTICAST_LOOP: c_int = 11;
+pub const IPV6_MULTICAST_LOOP: c_int = 11;
+
+pub const FIOCLEX: c_uint = 0x20006601;
+pub const O_NONBLOCK: c_int = 0x4;
+pub const F_DUPFD: c_int = 0;
+pub const F_GETFD: c_int = 1;
+pub const F_SETFD: c_int = 2;
+pub const F_GETFL: c_int = 3;
+pub const F_SETFL: c_int = 4;
+pub const F_DUPFD_CLOEXEC: c_int = 17;
+
+extern "C" {
+    #[link_name = "nnsocketIoctl"]
+    pub fn ioctl(fd: c_int, request: c_uint, ...) -> c_int;
+
+    #[link_name = "nnsocketFreeAddrInfo"]
+    pub fn freeaddrinfo(res: *mut addrinfo);
+
+    #[link_name = "nnsocketGetAddrInfo"]
+    pub fn getaddrinfo(
+        node: *const c_schar, 
+        service: *const c_char, 
+        hints: *const addrinfo, 
+        res: *mut *mut addrinfo
+    ) -> c_int;
+
+    #[link_name = "nnsocketFcntl"]
+    pub fn fcntl(fd: c_int, cmd: c_int, ...) -> c_int;
+
+    pub fn pread(
+        fd: c_int, 
+        buf: *mut c_void, 
+        count: size_t, 
+        offset: off_t
+    ) -> ssize_t;
+}
+
+pub unsafe fn writev(
+    fd: c_int,
+    buf: *const iovec,
+    count: c_int,
+) -> ssize_t {
+    let slice = core::slice::from_raw_parts(buf, count as usize);
+    let mut total = 0;
+    for iovec in slice.iter() {
+        total += write(fd, iovec.iov_base, iovec.iov_len);
+    }
+    total
+}
+
+pub unsafe fn readv(fd: c_int, buf: *const iovec, count: c_int) -> ssize_t {
+    let slice = core::slice::from_raw_parts(buf, count as usize);
+    let mut total = 0;
+    for iovec in slice.iter() {
+        total += read(fd, iovec.iov_base, iovec.iov_len);
+    }
+    total
+}
+
+pub fn socketpair(
+    __domain: c_int,
+    __type: c_int,
+    __protocol: c_int,
+    __fds: *mut c_int,
+) -> c_int {
+    panic!("sockpair does not exist");
+}
+
 // sockets
 extern "C" {
+    #[link_name = "nnsocketSocket"]
     pub fn socket(
         __domain: c_int,
         __type: c_int,
         __protocol: c_int,
     ) -> c_int;
-    pub fn socketpair(
-        __domain: c_int,
-        __type: c_int,
-        __protocol: c_int,
-        __fds: *mut c_int,
-    ) -> c_int;
+    #[link_name = "nnsocketBind"]
     pub fn bind(
         __fd: c_int,
         __addr: *const sockaddr,
         __len: socklen_t,
     ) -> c_int;
+    #[link_name = "nnsocketGetSockName"]
     pub fn getsockname(
         __fd: c_int,
         __addr: *mut sockaddr,
         __len: *mut socklen_t,
     ) -> c_int;
+    #[link_name = "nnsocketConnect"]
     pub fn connect(
         __fd: c_int,
         __addr: *const sockaddr,
         __len: socklen_t,
     ) -> c_int;
+    #[link_name = "nnsocketGetPeerName"]
     pub fn getpeername(
         __fd: c_int,
         __addr: *mut sockaddr,
         __len: *mut socklen_t,
     ) -> c_int;
+    #[link_name = "nnsocketSend"]
     pub fn send(
         __fd: c_int,
         __buf: *const c_void,
         __n: size_t,
         __flags: c_int,
     ) -> ssize_t;
+    #[link_name = "nnsocketRecv"]
     pub fn recv(
         __fd: c_int,
         __buf: *mut c_void,
         __n: size_t,
         __flags: c_int,
     ) -> ssize_t;
+    #[link_name = "nnsocketSendTo"]
     pub fn sendto(
         __fd: c_int,
         __buf: *const c_void,
@@ -422,6 +529,7 @@ extern "C" {
         __addr: *const sockaddr,
         __addr_len: socklen_t,
     ) -> ssize_t;
+    #[link_name = "nnsocketRecvFrom"]
     pub fn recvfrom(
         __fd: c_int,
         __buf: *mut c_void,
@@ -430,29 +538,32 @@ extern "C" {
         __addr: *mut sockaddr,
         __addr_len: *mut socklen_t,
     ) -> ssize_t;
+    #[link_name = "nnsocketSendMsg"]
     pub fn sendmsg(
         __fd: c_int,
         __message: *const msghdr,
         __flags: c_int,
     ) -> ssize_t;
-    pub fn sendmmsg(
+    /*pub fn sendmmsg(
         __fd: c_int,
         __vmessages: *mut mmsghdr,
         __vlen: c_uint,
         __flags: c_int,
-    ) -> c_int;
+    ) -> c_int;*/
+    #[link_name = "nnsocketRecvMsg"]
     pub fn recvmsg(
         __fd: c_int,
         __message: *mut msghdr,
         __flags: c_int,
     ) -> ssize_t;
-    pub fn recvmmsg(
+    /*pub fn recvmmsg(
         __fd: c_int,
         __vmessages: *mut mmsghdr,
         __vlen: c_uint,
         __flags: c_int,
         __tmo: *mut timespec,
-    ) -> c_int;
+    ) -> c_int;*/
+    #[link_name = "nnsocketGetSockOpt"]
     pub fn getsockopt(
         __fd: c_int,
         __level: c_int,
@@ -460,6 +571,7 @@ extern "C" {
         __optval: *mut c_void,
         __optlen: *mut socklen_t,
     ) -> c_int;
+    #[link_name = "nnsocketSetSockOpt"]
     pub fn setsockopt(
         __fd: c_int,
         __level: c_int,
@@ -467,32 +579,44 @@ extern "C" {
         __optval: *const c_void,
         __optlen: socklen_t,
     ) -> c_int;
+
+    #[link_name = "nnsocketListen"]
     pub fn listen(__fd: c_int, __n: c_int) -> c_int;
+    #[link_name = "nnsocketAccept"]
     pub fn accept(
         __fd: c_int,
         __addr: *mut sockaddr,
         __addr_len: *mut socklen_t,
     ) -> c_int;
+    #[link_name = "nnsocketAccept"]
     pub fn accept4(
         __fd: c_int,
         __addr: *mut sockaddr,
         __addr_len: *mut socklen_t,
         __flags: c_int,
     ) -> c_int;
+    #[link_name = "nnsocketShutdown"]
     pub fn shutdown(
         __fd: c_int,
         __how: c_int,
     ) -> c_int;
+    #[link_name = "nnsocketSockAtMark"]
     pub fn sockatmark(__fd: c_int) -> c_int;
-    pub fn isfdtype(
-        __fd: c_int,
-        __fdtype: c_int,
-    ) -> c_int;
+    #[link_name = "nnsocketPoll"]
     pub fn poll(
         fds: *mut pollfd,
         nfds: nfds_t,
         timeout: c_int
     ) -> c_int;
+}
+
+extern "C" {
+    #[link_name = "__nnmusl_ErrnoLocation"]
+    pub fn errno_loc() -> *mut i64;
+}
+
+pub fn gai_strerror(_: c_int) -> *const c_schar {
+    "invalid error, no gai_strerror present\0".as_ptr() as _
 }
 
 extern "C" {
@@ -654,7 +778,7 @@ extern "C" {
 
     pub fn rmdir(path: *const c_char) -> c_int;
     pub fn sleep(secs: c_uint) -> c_uint;
-    pub fn read(fd: c_int, buf: *mut c_void, count: size_t)
+    pub fn read(fd: c_int, buf: *const c_void, count: size_t)
         -> ssize_t;
 
     pub fn open(path: *const c_char, oflag: c_int, ...) -> c_int;
