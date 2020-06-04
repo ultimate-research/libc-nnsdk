@@ -475,7 +475,7 @@ pub fn socketpair(
     __protocol: c_int,
     __fds: *mut c_int,
 ) -> c_int {
-    panic!("sockpair does not exist");
+    0
 }
 
 // sockets
