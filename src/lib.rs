@@ -260,6 +260,7 @@ pub struct sockaddr_in {
     pub sin_family: sa_family_t,
     pub sin_port: in_port_t,
     pub sin_addr: in_addr,
+    pub sin_zero: u64
 }
 
 #[repr(C)]
@@ -416,6 +417,9 @@ pub const F_SETFD: c_int = 2;
 pub const F_GETFL: c_int = 3;
 pub const F_SETFL: c_int = 4;
 pub const F_DUPFD_CLOEXEC: c_int = 17;
+
+pub const SO_KEEPALIVE: c_int = 0x0008;
+pub const INADDR_ANY: c_int = 0;
 
 extern "C" {
     #[link_name = "nnsocketIoctl"]
