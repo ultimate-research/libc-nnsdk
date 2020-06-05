@@ -450,26 +450,28 @@ extern "C" {
     ) -> ssize_t;
 }
 
-/*pub unsafe fn writev(
-    fd: c_int,
-    buf: *const iovec,
-    count: c_int,
+pub unsafe fn writev(
+    _fd: c_int,
+    _buf: *const iovec,
+    _count: c_int,
 ) -> ssize_t {
-    let slice = core::slice::from_raw_parts(buf, count as usize);
+    /*let slice = core::slice::from_raw_parts(buf, count as usize);
     let mut total = 0;
     for iovec in slice.iter() {
         total += write(fd, iovec.iov_base, iovec.iov_len);
     }
-    total
+    total*/
+    -1
 }
 
-pub unsafe fn readv(fd: c_int, buf: *const iovec, count: c_int) -> ssize_t {
-    let slice = core::slice::from_raw_parts(buf, count as usize);
+pub unsafe fn readv(_fd: c_int, _buf: *const iovec, _count: c_int) -> ssize_t {
+    /*let slice = core::slice::from_raw_parts(buf, count as usize);
     let mut total = 0;
     for iovec in slice.iter() {
         total += read(fd, iovec.iov_base, iovec.iov_len);
     }
-    total
+    total*/
+    -1
 }
 
 pub fn socketpair(
@@ -478,8 +480,8 @@ pub fn socketpair(
     __protocol: c_int,
     __fds: *mut c_int,
 ) -> c_int {
-    0
-}*/
+    -1
+}
 
 // sockets
 extern "C" {
