@@ -12,6 +12,9 @@ pub enum c_void {}
 
 #[cfg(feature = "rustc-dep-of-std")]
 pub use rustc_std_workspace_core as core;
+#[cfg(feature = "rustc-dep-of-std")]
+use core::ops;
+
 use core::prelude::v1::*;
 
 pub type c_char = u8;
@@ -447,7 +450,7 @@ extern "C" {
     ) -> ssize_t;
 }
 
-pub unsafe fn writev(
+/*pub unsafe fn writev(
     fd: c_int,
     buf: *const iovec,
     count: c_int,
@@ -476,7 +479,7 @@ pub fn socketpair(
     __fds: *mut c_int,
 ) -> c_int {
     0
-}
+}*/
 
 // sockets
 extern "C" {
