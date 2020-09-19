@@ -239,7 +239,7 @@ extern "C" {
 }
 
 pub type socklen_t = c_uint;
-pub type sa_family_t = c_ushort;
+pub type sa_family_t = c_char;
 pub type __time_t = time_t;
 pub type __suseconds_t = c_long;
 pub type suseconds_t = c_long;
@@ -257,13 +257,14 @@ pub struct in6_addr {
     pub s6_addr: in6_addr_t,
 }
 
-#[repr(C)]
+#[repr(packed)]
 #[derive(Debug, Copy, Clone)]
 pub struct sockaddr_in {
+    pub sin_len: u8,
     pub sin_family: sa_family_t,
     pub sin_port: in_port_t,
     pub sin_addr: in_addr,
-    pub sin_zero: u64
+    pub sin_zero: [u8;8]
 }
 
 #[repr(C)]
@@ -279,6 +280,7 @@ pub struct sockaddr_in6 {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct sockaddr {
+    pub sa_len: u8,
     pub sa_family: sa_family_t,
     pub sa_data: [c_char; 14usize],
 }
