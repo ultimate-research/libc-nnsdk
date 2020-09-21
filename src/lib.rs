@@ -53,6 +53,9 @@ pub type mode_t = c_uint;
 pub type off_t = i64;
 
 pub type pthread_t = u64;
+pub type pthread_cond_t = *mut c_void;
+pub type pthread_condattr_t = *mut c_void;
+pub const PTHREAD_COND_INITIALIZER: pthread_cond_t = 0 as *mut _;
 
 #[repr(C)]
 pub struct sem_t { // Unverified
@@ -98,6 +101,7 @@ extern "C" {
 }
 
 pub type pthread_key_t = c_uint;
+pub type clockid_t = c_ulong;
 
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -158,6 +162,9 @@ pub const PTHREAD_MUTEX_RECURSIVE: c_int = 1;
 // please be bsd/unix-like enough for this...
 pub const EINTR: c_int = 4;
 pub const EINVAL: c_int = 22;
+
+pub const CLOCK_MONOTONIC: clockid_t = 4;
+pub const ETIMEDOUT: c_int = 60;
 
 extern "C" {
     #[link_name = "__pthread_key_create"]
@@ -235,6 +242,32 @@ extern "C" {
         t: pthread_t,
         name: *const c_schar,
         arg: *const c_void,
+    ) -> c_int;
+
+    pub fn pthread_condattr_init(attr: *mut pthread_condattr_t) -> c_int;
+
+    pub fn pthread_condattr_setclock(
+        attr: *mut pthread_condattr_t,
+        clock_id: clockid_t,
+    ) -> c_int;
+
+    pub fn pthread_condattr_destroy(attr: *mut pthread_condattr_t) -> c_int;
+    pub fn pthread_cond_signal(cond: *mut pthread_cond_t) -> c_int;
+    pub fn pthread_cond_broadcast(cond: *mut pthread_cond_t) -> c_int;
+    pub fn pthread_cond_wait(
+        cond: *mut pthread_cond_t,
+        lock: *mut pthread_mutex_t,
+    ) -> c_int;
+    pub fn clock_gettime(clk_id: clockid_t, tp: *mut timespec) -> c_int;
+    pub fn pthread_cond_timedwait(
+        cond: *mut pthread_cond_t,
+        lock: *mut pthread_mutex_t,
+        abstime: *const timespec,
+    ) -> c_int;
+    pub fn pthread_cond_destroy(cond: *mut pthread_cond_t) -> c_int;
+    pub fn pthread_cond_init(
+        cond: *mut pthread_cond_t,
+        attr: *const pthread_condattr_t,
     ) -> c_int;
 }
 
