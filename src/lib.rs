@@ -354,6 +354,7 @@ pub struct timeval {
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct sockaddr_storage {
+    pub sin_len: u8,
     pub ss_family: sa_family_t,
     pub __ss_padding: [c_char; 118usize],
     pub __ss_align: c_ulong,
