@@ -101,7 +101,7 @@ extern "C" {
 }
 
 pub type pthread_key_t = c_uint;
-pub type clockid_t = c_ulong;
+pub type clockid_t = i32;
 
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -147,6 +147,7 @@ pub struct pthread_attr_t {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct timespec {
     pub tv_sec: time_t,
     pub tv_nsec: c_long,
@@ -163,7 +164,8 @@ pub const PTHREAD_MUTEX_RECURSIVE: c_int = 1;
 pub const EINTR: c_int = 4;
 pub const EINVAL: c_int = 22;
 
-pub const CLOCK_MONOTONIC: clockid_t = 4;
+pub const CLOCK_MONOTONIC: clockid_t = 0;
+pub const CLOCK_REALTIME: clockid_t = 0;
 pub const ETIMEDOUT: c_int = 60;
 
 extern "C" {
