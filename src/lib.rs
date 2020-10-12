@@ -412,7 +412,7 @@ pub const IPPROTO_IPV6: c_int = 41;
 pub const SO_ERROR: c_int = 0x1007;
 pub const SOL_SOCKET: c_int = 0xffff;
 pub const FIONBIO: c_uint = 0x8004667e;
-pub const EINPROGRESS: c_int = 36;
+pub const EINPROGRESS: c_int = 115;
 
 pub const AF_INET: c_int = 2;
 pub const AF_INET6: c_int = 24;
