@@ -93,10 +93,11 @@ pub enum FILE {}
 pub enum DIR {}
 
 extern "C" {
-    pub fn malloc(size: size_t) -> *const c_void;
-    pub fn free(ptr: *const c_void);
-    pub fn calloc(num: size_t, size: size_t) -> *const c_void;
-    pub fn realloc(ptr: *const c_void, size: size_t) -> *const c_void;
+    pub fn malloc(size: size_t) -> *mut c_void;
+    pub fn memalign(align: size_t, size: size_t) -> *mut c_void;
+    pub fn free(ptr: *mut c_void);
+    pub fn calloc(num: size_t, size: size_t) -> *mut c_void;
+    pub fn realloc(ptr: *mut c_void, size: size_t) -> *mut c_void;
     // fn aligned_alloc(align: usize, size: usize) -> *const c_void;
 }
 
