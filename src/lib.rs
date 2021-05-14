@@ -293,7 +293,7 @@ pub struct in6_addr {
     pub s6_addr: in6_addr_t,
 }
 
-#[repr(packed)]
+#[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct sockaddr_in {
     pub sin_len: u8,
