@@ -1,3 +1,6 @@
+[workspace]
+members = ["libc"]
+
 [package]
 name = "libc-nnsdk"
 version = "0.0.1"
