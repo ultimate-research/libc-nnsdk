@@ -1,7 +1,7 @@
 [package]
 name = "libc"
 version = "0.2.999"
-edition = "2021"
+edition = "2018"
 
 [dependencies]
 libc-nnsdk = { path = "../libc-nnsdk" }
