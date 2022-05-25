@@ -324,7 +324,7 @@ pub struct sockaddr {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct iovec {
-    pub iov_base: *const c_void,
+    pub iov_base: *mut c_void,
     pub iov_len: size_t,
 }
 
@@ -398,12 +398,23 @@ pub struct ipv6_mreq {
     pub ipv6mr_interface: c_uint,
 }
 
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct linger
+{
+    pub l_onoff: i32,
+    pub l_linger: i32,
+}
+
 pub const SHUT_RD: c_int = 0;
 pub const SHUT_WR: c_int = 1;
 pub const SHUT_RDWR: c_int = 2;
 
 pub const TCP_NODELAY: c_int = 1;
 pub const TCP_MAXSEG: c_int = 2;
+pub const TCP_KEEPINTVL: c_int = 512;
+pub const TCP_KEEPCNT: c_int = 1024;
+
 
 pub const IPPROTO_ICMP: c_int = 1;
 pub const IPPROTO_ICMPV6: c_int = 58;
@@ -431,25 +442,43 @@ pub const POLLWRNORM: c_short = 0x004;
 pub const POLLRDBAND: c_short = 0x080;
 pub const POLLWRBAND: c_short = 0x100;
 
+pub const MSG_OOB: c_int = 0x1;
 pub const MSG_PEEK: c_int = 0x2;
+pub const MSG_TRUNC: c_int = 0x10;
+
+
 pub const EAI_SYSTEM: c_int = 11;
 
-// from libnx
-pub const IPV6_ADD_MEMBERSHIP: c_int = 12;
+pub const IPV6_UNICAST_HOPS: c_int = 4;
+pub const IP_MULTICAST_IF: c_int = 9;
+pub const IPV6_MULTICAST_IF: c_int = 9;
+pub const IPV6_MULTICAST_HOPS: c_int = 10;
+pub const IPV6_MULTICAST_LOOP: c_int = 11;
 pub const IP_ADD_MEMBERSHIP: c_int = 12;
+pub const IPV6_ADD_MEMBERSHIP: c_int = 12; // from libnx
 pub const IP_DROP_MEMBERSHIP: c_int = 13;
 pub const IPV6_DROP_MEMBERSHIP: c_int = 13;
+
 pub const SOCK_STREAM: c_int = 1;
 pub const SOCK_DGRAM: c_int = 2;
+pub const SOCK_RAW: c_int = 3;
+pub const SOCK_RDM: c_int = 4;
+pub const SOCK_SEQPACKET: c_int = 5;
+
+pub const SO_SNDBUF: c_int = 0x1001;
+pub const SO_RCVBUF: c_int = 0x1002;
 pub const SO_SNDTIMEO: c_int = 0x1005;
 pub const SO_RCVTIMEO: c_int = 0x1006;
-pub const SO_BROADCAST: c_int = 0x20;
+pub const SO_TYPE: c_int = 0x1008;
+
+pub const IP_TOS: c_int = 3;
 pub const IP_TTL: c_int = 4;
+pub const IP_RECVOPTS: c_int = 5;
 pub const SO_REUSEADDR: c_int = 4;
 pub const IPV6_V6ONLY: c_int = 27;
 pub const IP_MULTICAST_TTL: c_int = 10;
 pub const IP_MULTICAST_LOOP: c_int = 11;
-pub const IPV6_MULTICAST_LOOP: c_int = 11;
+pub const IP_RECVTOS: c_int = 168;
 
 pub const FIOCLEX: c_uint = 0x20006601;
 pub const O_NONBLOCK: c_int = 0x4;
@@ -461,6 +490,10 @@ pub const F_SETFL: c_int = 4;
 pub const F_DUPFD_CLOEXEC: c_int = 17;
 
 pub const SO_KEEPALIVE: c_int = 0x0008;
+pub const SO_BROADCAST: c_int = 0x20;
+pub const SO_LINGER: c_int = 0x80;
+pub const SO_OOBINLINE: c_int = 0x100;
+
 pub const INADDR_ANY: c_int = 0;
 
 extern "C" {
@@ -636,13 +669,13 @@ extern "C" {
         __addr: *mut sockaddr,
         __addr_len: *mut socklen_t,
     ) -> c_int;
-    #[link_name = "nnsocketAccept"]
-    pub fn accept4(
-        __fd: c_int,
-        __addr: *mut sockaddr,
-        __addr_len: *mut socklen_t,
-        __flags: c_int,
-    ) -> c_int;
+    // #[link_name = "nnsocketAccept"]
+    // pub fn accept4(
+    //     __fd: c_int,
+    //     __addr: *mut sockaddr,
+    //     __addr_len: *mut socklen_t,
+    //     __flags: c_int,
+    // ) -> c_int;
     #[link_name = "nnsocketShutdown"]
     pub fn shutdown(
         __fd: c_int,
