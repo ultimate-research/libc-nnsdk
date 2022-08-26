@@ -2,7 +2,6 @@
 #![cfg_attr(feature = "rustc-dep-of-std", feature(no_core))]
 #![cfg_attr(feature = "rustc-dep-of-std", feature(lang_items))]
 #![cfg_attr(feature = "rustc-dep-of-std", no_core)]
-#![feature(untagged_unions)]
 
 //! Public exports of libc functions
 #![allow(non_camel_case_types)]
