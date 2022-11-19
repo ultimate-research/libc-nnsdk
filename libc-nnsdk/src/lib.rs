@@ -445,7 +445,7 @@ pub const MSG_OOB: c_int = 0x1;
 pub const MSG_PEEK: c_int = 0x2;
 pub const MSG_TRUNC: c_int = 0x10;
 
-
+pub const EAI_NODATA: c_int = 7;
 pub const EAI_SYSTEM: c_int = 11;
 
 pub const IPV6_UNICAST_HOPS: c_int = 4;
@@ -480,7 +480,7 @@ pub const IP_MULTICAST_LOOP: c_int = 11;
 pub const IP_RECVTOS: c_int = 168;
 
 pub const FIOCLEX: c_uint = 0x20006601;
-pub const O_NONBLOCK: c_int = 0x800;
+pub const O_NONBLOCK: c_int = 0x4;
 pub const F_DUPFD: c_int = 0;
 pub const F_GETFD: c_int = 1;
 pub const F_SETFD: c_int = 2;
