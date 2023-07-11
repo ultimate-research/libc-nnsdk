@@ -6,15 +6,15 @@
 //! Public exports of libc functions
 #![allow(non_camel_case_types)]
 
-#[non_exhaustive]
-pub enum c_void {}
-
 #[cfg(feature = "rustc-dep-of-std")]
-pub use rustc_std_workspace_core as core;
+extern crate rustc_std_workspace_core as core;
 #[cfg(feature = "rustc-dep-of-std")]
 use core::ops;
 
 use core::prelude::v1::*;
+
+pub use core::ffi::c_void;
+
 
 pub type c_char = u8;
 pub type time_t = i32;
