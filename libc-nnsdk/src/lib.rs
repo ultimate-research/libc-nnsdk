@@ -242,7 +242,7 @@ extern "C" {
 
     pub fn pthread_setname_np(
         t: pthread_t,
-        name: *const c_schar,
+        name: *const c_char,
         arg: *const c_void,
     ) -> c_int;
 
@@ -504,7 +504,7 @@ extern "C" {
 
     #[link_name = "nnsocketGetAddrInfo"]
     pub fn getaddrinfo(
-        node: *const c_schar, 
+        node: *const c_char, 
         service: *const c_char, 
         hints: *const addrinfo, 
         res: *mut *mut addrinfo
@@ -695,7 +695,7 @@ extern "C" {
     pub fn errno_loc() -> *mut i64;
 }
 
-pub fn gai_strerror(_: c_int) -> *const c_schar {
+pub fn gai_strerror(_: c_int) -> *const c_char {
     "invalid error, no gai_strerror present\0".as_ptr() as _
 }
 
