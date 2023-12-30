@@ -161,6 +161,7 @@ pub const PTHREAD_MUTEX_NORMAL: c_int = 0;
 pub const PTHREAD_MUTEX_RECURSIVE: c_int = 1;
 
 // please be bsd/unix-like enough for this...
+// Ray: I've got good news!
 pub const EINTR: c_int = 4;
 pub const EINVAL: c_int = 22;
 
