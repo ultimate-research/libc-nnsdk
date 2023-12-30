@@ -164,6 +164,7 @@ pub const PTHREAD_MUTEX_RECURSIVE: c_int = 1;
 // Ray: I've got good news!
 pub const EINTR: c_int = 4;
 pub const EINVAL: c_int = 22;
+pub const EISCONN: c_int = 106;
 
 pub const CLOCK_MONOTONIC: clockid_t = 0;
 pub const CLOCK_REALTIME: clockid_t = 0;
