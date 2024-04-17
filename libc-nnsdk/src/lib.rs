@@ -224,6 +224,7 @@ extern "C" {
         value: *mut *mut c_void,
     ) -> c_int;
 
+    #[link_name = "__pthread_detach"]
     pub fn pthread_detach(thread: pthread_t) -> c_int;
 
     pub fn pthread_attr_setstacksize(
