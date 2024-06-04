@@ -482,7 +482,8 @@ pub const IP_MULTICAST_LOOP: c_int = 11;
 pub const IP_RECVTOS: c_int = 168;
 
 pub const FIOCLEX: c_uint = 0x20006601;
-pub const O_NONBLOCK: c_int = 0x4;
+// Fcntl is 0x800, not 0x4
+pub const O_NONBLOCK: c_int = 0x800;
 pub const F_DUPFD: c_int = 0;
 pub const F_GETFD: c_int = 1;
 pub const F_SETFD: c_int = 2;
