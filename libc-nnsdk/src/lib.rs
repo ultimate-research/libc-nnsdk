@@ -162,13 +162,15 @@ pub const PTHREAD_MUTEX_RECURSIVE: c_int = 1;
 
 // please be bsd/unix-like enough for this...
 // Ray: I've got good news!
+// ashkitten: apparently nnsdk uses musl, so pulling from those headers:
 pub const EINTR: c_int = 4;
 pub const EINVAL: c_int = 22;
 pub const EISCONN: c_int = 106;
+pub const ETIMEDOUT: c_int = 110;
 
-pub const CLOCK_MONOTONIC: clockid_t = 0;
+// nnsdk only supports clock id 0
 pub const CLOCK_REALTIME: clockid_t = 0;
-pub const ETIMEDOUT: c_int = 60;
+pub const CLOCK_MONOTONIC: clockid_t = 0;
 
 extern "C" {
     #[link_name = "__pthread_key_create"]
