@@ -6,8 +6,7 @@
 //! Public exports of libc functions
 #![allow(non_camel_case_types)]
 
-#[cfg(feature = "rustc-dep-of-std")]
-extern crate rustc_std_workspace_core as core;
+
 #[cfg(feature = "rustc-dep-of-std")]
 use core::ops;
 
