@@ -1,6 +1,6 @@
 [package]
 name = "libc-nnsdk"
-version = "0.4.0"
+version = "0.5.0"
 authors = ["jam1garner <jam1.mcleod@hotmail.com>"]
 edition = "2018"
 license = "MIT"
@@ -13,7 +13,7 @@ name = "libc"
 path = "src/lib.rs"
 
 [dependencies]
-rustc-std-workspace-core = { version = "1", optional = true }
+core = { version = "1.0", package = "rustc-std-workspace-core", optional = true }
 
 [features]
-rustc-dep-of-std = ["rustc-std-workspace-core"]
+rustc-dep-of-std = ["core"]
